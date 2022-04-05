@@ -9,7 +9,7 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, dpi=300,fig.width=6)
+knitr::opts_chunk$set(echo = TRUE, dpi=300,fig.width=4)
 library(tidyverse)
 library(ggplot2)
 library(dplyr)
@@ -71,6 +71,9 @@ prune_1se = function(my_tree) {
 }
 
 dengue.tree_prune = prune_1se(dengue.tree)
+```
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
 rpart.plot(dengue.tree, digits=-5, type=4, extra=1)
 rpart.plot(dengue.tree_prune, digits=-5, type=4, extra=1)
 ```
@@ -83,7 +86,7 @@ dengue.forest = randomForest(total_cases ~ season + city + specific_humidity + p
 
 ### Gradient boost
 
-```{r, message=FALSE}
+```{r}
 dengue_boost = gbm(total_cases ~ season + city + specific_humidity + precipitation_amt + tdtr_k + precip_amt_kg_per_m2  + dew_point_temp_k + relative_humidity_percent, distribution="gaussian", data=dengue_train, interaction.depth=4, n.trees=500, shrinkage=.05)
 
 ```
@@ -155,7 +158,7 @@ green.tree_prune = prune_1se(green.tree)
 
 ```
 
-```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.width=4}
+```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.width=3}
 rpart.plot(green.tree, digits=-5, type=4, extra=1)
 rpart.plot(green.tree_prune, digits=-5, type=4, extra=1)
 ```

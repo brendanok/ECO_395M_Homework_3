@@ -72,16 +72,9 @@ prune_1se = function(my_tree) {
 }
 
 dengue.tree_prune = prune_1se(dengue.tree)
-rpart.plot(dengue.tree, digits=-5, type=4, extra=1)
 ```
 
-![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-2-1.png)
-
-``` r
-rpart.plot(dengue.tree_prune, digits=-5, type=4, extra=1)
-```
-
-![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-2-2.png)
+![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-3-1.png)![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-3-2.png)
 
 ### Random forest
 
@@ -99,16 +92,16 @@ dengue_boost = gbm(total_cases ~ season + city + specific_humidity + precipitati
 
 | Model            |     RMSE |
 |:-----------------|---------:|
-| Tree             | 29.68468 |
-| Pruned Tree      | 28.59820 |
-| Random Forest    | 27.55274 |
-| Gradient Boosted | 28.70655 |
+| Tree             | 27.26391 |
+| Pruned Tree      | 29.27650 |
+| Random Forest    | 26.49632 |
+| Gradient Boosted | 27.87988 |
 
 The best performing model was the random forest model. Below are partial
 dependence plots for `specific_humidity`,
 `precipitation_amt`,`dew_point_temp_k`.
 
-![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-6-1.png)![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-6-2.png)![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-6-3.png)
+![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-7-1.png)![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-7-2.png)![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-7-3.png)
 
 ## Predictive model building: green certification
 
@@ -154,7 +147,7 @@ prune_1se = function(my_tree) {
 green.tree_prune = prune_1se(green.tree)
 ```
 
-![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-11-1.png)![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-11-2.png)
+![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-12-1.png)![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-12-2.png)
 
 ### Random forest
 
@@ -172,27 +165,27 @@ green_boost = gbm(revenue ~ . - CS_PropertyID - Rent - leasing_rate - LEED - Ene
 
 | Model                 |      RMSE |
 |:----------------------|----------:|
-| Linear Model          | 1075.1764 |
-| Modified Linear Model | 1063.7568 |
-| Tree                  | 1080.2975 |
-| Pruned Tree           | 1081.8893 |
-| Random Forest         |  789.0855 |
-| Gradient Boosted      |  955.5421 |
+| Linear Model          | 1019.6694 |
+| Modified Linear Model | 1013.9725 |
+| Tree                  | 1054.3629 |
+| Pruned Tree           | 1069.1141 |
+| Random Forest         |  847.8515 |
+| Gradient Boosted      |  981.2061 |
 
 ## Predictive model building: California housing
 
     ## Distribution not specified, assuming gaussian ...
 
-    ## [1] 76610.08
+    ## [1] 76052.56
 
-    ## [1] 76008.57
+    ## [1] 75259.98
 
-    ## [1] 78063.36
+    ## [1] 78087.09
 
-    ## [1] 78153.32
+    ## [1] 78859.07
 
-    ## [1] 65628.33
+    ## [1] 65958.07
 
-    ## [1] 66650.12
+    ## [1] 66362.1
 
-![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-15-1.png)![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-15-2.png)![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-15-3.png)
+![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-16-1.png)![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-16-2.png)![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-16-3.png)
