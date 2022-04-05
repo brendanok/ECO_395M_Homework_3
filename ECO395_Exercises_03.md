@@ -43,67 +43,129 @@ ridership. The model concludes that on high alert days, the reduction in
 crime in the first district of Washington D.C. is much higher than it is
 for the rest of the districts.
 
+## Tree modeling: dengue cases
 
+``` r
+dengue = read.csv("dengue.csv")
 
-    ## Tree modeling: dengue cases
+dengue = drop_na(dengue)
+dengue$city = factor(dengue$city)
+dengue$season = factor(dengue$season)
 
+dengue_split = initial_split(dengue, prop = 0.8)
+dengue_train = training(dengue_split)
+dengue_test = testing(dengue_split)
+```
 
+### CART
 
+``` r
+dengue.tree = rpart(total_cases ~ season + city + specific_humidity + precipitation_amt + tdtr_k + precip_amt_kg_per_m2  + dew_point_temp_k + relative_humidity_percent, data=dengue_train, control = rpart.control(cp = 0.002, minsplit=30))
 
-    ### CART
+prune_1se = function(my_tree) {
+  out = as.data.frame(my_tree$cptable)
+  thresh = min(out$xerror + out$xstd)
+  cp_opt = max(out$CP[out$xerror <= thresh])
+  prune(my_tree, cp=cp_opt)
+}
 
+dengue.tree_prune = prune_1se(dengue.tree)
 
+rpart.plot(dengue.tree, digits=-5, type=4, extra=1)
+```
 
-    ### Random forest
+![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-2-1.png)
 
+### Random forest
 
-## Distribution not specified, assuming gaussian …
+``` r
+dengue.forest = randomForest(total_cases ~ season + city + specific_humidity + precipitation_amt + tdtr_k + precip_amt_kg_per_m2  + dew_point_temp_k + relative_humidity_percent, data=dengue_train, importance = TRUE)
+plot(dengue.forest)
+```
 
-## \[1\] 28.09821
+![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-3-1.png)
 
-## \[1\] 27.27379
+``` r
+# Gradient boost
+dengue_boost = gbm(total_cases ~ season + city + specific_humidity + precipitation_amt + tdtr_k + precip_amt_kg_per_m2  + dew_point_temp_k + relative_humidity_percent, data=dengue_train, interaction.depth=4, n.trees=500, shrinkage=.05)
+```
 
-## \[1\] 26.05006
+    ## Distribution not specified, assuming gaussian ...
 
-## \[1\] 25.99513
+``` r
+rmse(dengue.tree, dengue_test)
+```
 
+    ## [1] 32.33492
 
-    ![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-6-1.png)![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-6-2.png)![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-6-3.png)
+``` r
+rmse(dengue.tree_prune, dengue_test)
+```
 
-    ## Predictive model building: green certification
+    ## [1] 32.28888
 
-## Distribution not specified, assuming gaussian …
+``` r
+rmse(dengue.forest, dengue_test)
+```
 
-## \[1\] 941.143
+    ## [1] 30.24063
 
-## \[1\] 930.3005
+``` r
+rmse(dengue_boost, dengue_test)
+```
 
-## \[1\] 911.927
+    ## Using 500 trees...
 
-## \[1\] 937.665
+    ## [1] 31.39644
 
-## \[1\] 700.529
+``` r
+partialPlot(dengue.forest, dengue_test,  'specific_humidity', las=1)
+```
 
-## \[1\] 843.8646
+![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-5-1.png)
 
+``` r
+partialPlot(dengue.forest, dengue_test, 'precipitation_amt', las=1)
+```
 
+![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-5-2.png)
 
-    ## Predictive model building: California housing
+``` r
+partialPlot(dengue.forest, dengue_test, 'dew_point_temp_k', las=1)
+```
 
-## Distribution not specified, assuming gaussian …
+![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-5-3.png)
 
-## \[1\] 76420.97
+## Predictive model building: green certification
 
-## \[1\] 75147.03
+    ## Distribution not specified, assuming gaussian ...
 
-## \[1\] 78333.19
+    ## [1] 999.8245
 
-## \[1\] 78914.27
+    ## [1] 993.2966
 
-## \[1\] 65702.64
+    ## [1] 1013.186
 
-## \[1\] 66744.04
+    ## [1] 1021.26
 
-\`\`\`
+    ## [1] 887.653
 
-![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-8-1.png)![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-8-2.png)![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-8-3.png)
+    ## [1] 988.9847
+
+## Predictive model building: California housing
+
+    ## Distribution not specified, assuming gaussian ...
+
+    ## [1] 73935.58
+
+    ## [1] 72638.76
+
+    ## [1] 76999.72
+
+    ## [1] 77565.27
+
+    ## [1] 63763.67
+
+    ## [1] 64831.83
+
+![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-7-1.png)![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-7-2.png)![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-7-3.png)
