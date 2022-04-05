@@ -94,43 +94,47 @@ dengue_boost = gbm(total_cases ~ season + city + specific_humidity + precipitati
 
 | Model            |     RMSE |
 |:-----------------|---------:|
-| Tree             | 29.92231 |
-| Pruned Tree      | 29.11968 |
-| Random Forest    | 27.58377 |
-| Gradient Boosted | 30.02897 |
+| Tree             | 33.49981 |
+| Pruned Tree      | 34.38200 |
+| Random Forest    | 31.98165 |
+| Gradient Boosted | 33.19501 |
 
-![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-5-1.png)![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-5-2.png)![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-5-3.png)
+The best performing model was the random forest model. Below are partial
+dependence plots for `specific_humidity`,
+`precipitation_amt`,`dew_point_temp_k`
+
+![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-6-1.png)![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-6-2.png)![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-6-3.png)
 
 ## Predictive model building: green certification
 
     ## Distribution not specified, assuming gaussian ...
 
-    ## [1] 1057.28
+    ## [1] 996.5327
 
-    ## [1] 1048.911
+    ## [1] 992.3039
 
-    ## [1] 999.7898
+    ## [1] 982.7513
 
-    ## [1] 1051.636
+    ## [1] 1027.844
 
-    ## [1] 776.0968
+    ## [1] 758.9844
 
-    ## [1] 927.5355
+    ## [1] 911.7435
 
 ## Predictive model building: California housing
 
     ## Distribution not specified, assuming gaussian ...
 
-    ## [1] 74165.07
+    ## [1] 77150.19
 
-    ## [1] 73326.18
+    ## [1] 75585.42
 
-    ## [1] 77620.78
+    ## [1] 78697.33
 
-    ## [1] 77922.82
+    ## [1] 79138.22
 
-    ## [1] 65586.16
+    ## [1] 66476.17
 
-    ## [1] 66365.47
+    ## [1] 67747.83
 
-![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-7-1.png)![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-7-2.png)![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-7-3.png)
+![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-8-1.png)![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-8-2.png)![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-8-3.png)

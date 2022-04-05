@@ -82,7 +82,7 @@ plot(dengue.forest)
 
 ### Gradient boost
 
-```{r}
+```{r, message=FALSE}
 dengue_boost = gbm(total_cases ~ season + city + specific_humidity + precipitation_amt + tdtr_k + precip_amt_kg_per_m2  + dew_point_temp_k + relative_humidity_percent, data=dengue_train, interaction.depth=4, n.trees=500, shrinkage=.05)
 
 ```
@@ -100,12 +100,16 @@ rmse_results = data.frame(
 )
 
 kable(rmse_results)
+```
+The best performing model was the random forest model. Below are partial dependence plots for `specific_humidity`, `precipitation_amt`,`dew_point_temp_k`
 
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
 partialPlot(dengue.forest, dengue_test,  'specific_humidity', las=1)
 partialPlot(dengue.forest, dengue_test, 'precipitation_amt', las=1)
 partialPlot(dengue.forest, dengue_test, 'dew_point_temp_k', las=1)
                    
 ```
+
 
 ## Predictive model building: green certification
 
