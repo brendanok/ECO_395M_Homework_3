@@ -1,0 +1,209 @@
+---
+title: "ECO395M Exercises 03"
+author: "Brendan Ok"
+date: ""
+output:
+  md_document:
+    variant: markdown_github
+
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(ggplot2)
+library(dplyr)
+library(rsample)
+library(modelr)
+library(rpart)
+library(rpart.plot)
+library(randomForest)
+library(gbm)
+library(ggmap)
+```
+
+## What causes what?
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+# 1. Why can’t I just get data from a few different cities and run the regression of “Crime” on “Police” to understand how more cops in the streets affect crime? (“Crime” refers to some measure of crime rate and “Police” measures the number of cops in a city.)
+
+# Higher crime cities are already incentivized to hire more police. And when crime is increased, the response is to hire more police. To actually find causality of extra police on crime rate, you need to find examples of where extra police get hired for reasons uncorrelated with crime. Examples of this include using the terrorism alert system as mentioned in the podcast.
+
+# 2. How were the researchers from UPenn able to isolate this effect? Briefly describe their approach and discuss their result in the “Table 2” below, from the researchers' paper.
+
+# The researchers were able to isolate this effect by implementing a dummy variable for 'high alert' that signifies the terror alert in Washington D.C. is turned to orange. When that happens, extra police is put on the street for terrorism related reasons. This is important because in this case, the extra level of police is uncorrelated with crime, so you can make a better test of the causal effect of police on crime.
+
+# 3. Why did they have to control for Metro ridership? What was that trying to capture?
+
+# They controlled for Metro ridership because an orange terror alert level might actually reduce the amount of potential crime victims in Washington D.C. during high alert times. So they accounted for that in the second model to see if would change their results.
+
+# 4. Below I am showing you "Table 4" from the researchers' paper. Just focus on the first column of the table. Can you describe the model being estimated here? What is the conclusion?
+
+# The model measures the reduction in crime in Washington D.C. during high alert days. The model also uses a dummy for crime incidents in  District 1 where there are a lot of important political and historic buildings, as well as a dummy for the rest of the city. It also controls for Metro ridership. The model concludes that on high alert days, the reduction in crime in the first district of Washington D.C. is much higher than it is for the rest of the districts.
+```
+
+## Tree modeling: dengue cases
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+
+dengue = read.csv("dengue.csv")
+
+dengue = drop_na(dengue)
+dengue$city = factor(dengue$city)
+dengue$season = factor(dengue$season)
+
+dengue_split = initial_split(dengue, prop = 0.8)
+dengue_train = training(dengue_split)
+dengue_test = testing(dengue_split)
+```
+
+
+### CART
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+dengue.tree = rpart(total_cases ~ season + city + specific_humidity + precipitation_amt + tdtr_k + precip_amt_kg_per_m2  + dew_point_temp_k + relative_humidity_percent, data=dengue_train, control = rpart.control(cp = 0.002, minsplit=30))
+
+#rpart.plot(dengue.tree, digits=-5, type=4, extra=1)
+
+prune_1se = function(my_tree) {
+  out = as.data.frame(my_tree$cptable)
+  thresh = min(out$xerror + out$xstd)
+  cp_opt = max(out$CP[out$xerror <= thresh])
+  prune(my_tree, cp=cp_opt)
+}
+
+dengue.tree_prune = prune_1se(dengue.tree)
+
+```
+
+### Random forest
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+dengue.forest = randomForest(total_cases ~ season + city + specific_humidity + precipitation_amt + tdtr_k + precip_amt_kg_per_m2  + dew_point_temp_k + relative_humidity_percent, data=dengue_train, importance = TRUE)
+#plot(dengue.forest)
+```
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+
+# Gradient boost
+dengue_boost = gbm(total_cases ~ season + city + specific_humidity + precipitation_amt + tdtr_k + precip_amt_kg_per_m2  + dew_point_temp_k + relative_humidity_percent, data=dengue_train, interaction.depth=4, n.trees=500, shrinkage=.05)
+
+```
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+rmse(dengue.tree_prune, dengue_test)
+rmse(dengue.forest, dengue_test)
+rmse(dengue_boost, dengue_test)
+
+
+partialPlot(dengue.forest, dengue_test,  'specific_humidity', las=1)
+partialPlot(dengue.forest, dengue_test, 'precipitation_amt', las=1)
+partialPlot(dengue.forest, dengue_test, 'dew_point_temp_k', las=1)
+                   
+```
+
+## Predictive model building: green certification
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+greenbuildings = read.csv('greenbuildings.csv')
+greenbuildings$revenue = greenbuildings$Rent * greenbuildings$leasing_rate
+
+green_split = initial_split(greenbuildings, prop = 0.8)
+green_train = training(green_split)
+green_test = testing(green_split)
+
+### OLS 
+
+
+lm_green = lm(revenue ~ . - CS_PropertyID - Rent - leasing_rate - green_rating, data=green_train)
+
+# lm_green_modified = lm(revenue ~ . - Rent - leasing_rate - LEED - Energystar + Gas_Costs:cd_total_07 + Electricity_Costs:hd_total07 + Gas_Costs:class_a + Gas_Costs:class_b + Electricity_Costs:class_a + Electricity_Costs:class_b + Electricity_Costs:age + Electricity_Costs:age, data=green_train)
+
+lm_green_modified = lm(revenue ~ . - CS_PropertyID - Rent - leasing_rate - LEED - Energystar - Gas_Costs:cd_total_07 + Electricity_Costs:hd_total07 + Gas_Costs:class_a + Gas_Costs:class_b + Gas_Costs:City_Market_Rent + Gas_Costs:stories + Gas_Costs:amenities + Electricity_Costs:class_a + Electricity_Costs:class_b + Electricity_Costs:age + Electricity_Costs:age  + Electricity_Costs:City_Market_Rent + Electricity_Costs:stories + Electricity_Costs:amenities, data=green_train)
+
+#summary (lm_green_modified)
+
+### CART
+green.tree = rpart(revenue ~ . - Rent - leasing_rate - LEED - Energystar, data=green_train, control = rpart.control(cp = 0.002, minsplit=30))
+
+prune_1se = function(my_tree) {
+  out = as.data.frame(my_tree$cptable)
+  thresh = min(out$xerror + out$xstd)
+  cp_opt = max(out$CP[out$xerror <= thresh])
+  prune(my_tree, cp=cp_opt)
+}
+
+green.tree_prune = prune_1se(green.tree)
+
+### Random forest
+green.forest = randomForest(revenue ~ . - CS_PropertyID - Rent - leasing_rate - LEED - Energystar, data = green_train, importance = TRUE, na.action = na.omit)
+
+green.forest_modified = randomForest(revenue ~ . - CS_PropertyID - Rent - leasing_rate - LEED - Energystar + Gas_Costs:cd_total_07 + Electricity_Costs:hd_total07 + Gas_Costs:class_a + Gas_Costs:class_b + Electricity_Costs:class_a + Electricity_Costs:class_b + Electricity_Costs:age + Electricity_Costs:age, data = green_train, importance = TRUE, na.action = na.omit)
+
+green.forest_modified2 = randomForest(revenue ~ . - CS_PropertyID - Rent - leasing_rate - LEED - Energystar - Electricity_Costs:hd_total07 + Gas_Costs:class_a + Gas_Costs:class_b + Gas_Costs:City_Market_Rent + Gas_Costs:stories + Gas_Costs:amenities + Electricity_Costs:class_a + Electricity_Costs:class_b + Electricity_Costs:age + Electricity_Costs:age  + Electricity_Costs:City_Market_Rent + Electricity_Costs:stories + Electricity_Costs:amenities, data = green_train, importance = TRUE, na.action = na.omit)
+
+### Gradient boost
+green_boost = gbm(revenue ~ . - CS_PropertyID - Rent - leasing_rate - LEED - Energystar + Gas_Costs:cd_total_07 + Electricity_Costs:hd_total07 + Gas_Costs:class_a + Gas_Costs:class_b + Gas_Costs:City_Market_Rent + Gas_Costs:stories + Gas_Costs:amenities + Electricity_Costs:class_a + Electricity_Costs:class_b + Electricity_Costs:age + Electricity_Costs:age  + Electricity_Costs:City_Market_Rent + Electricity_Costs:stories + Electricity_Costs:amenities, data = green_train, interaction.depth=4, n.trees=500, shrinkage=.05)
+
+rmse(lm_green, green_test)
+rmse(lm_green_modified, green_test)
+rmse(green.tree_prune, green_test)
+rmse(green.forest, green_test)
+rmse(green.forest_modified, green_test)
+rmse(green.forest_modified2,green_test)
+rmse(green_boost, green_test)
+
+
+```
+
+
+## Predictive model building: California housing
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+
+housing = read.csv('CAhousing.csv')
+
+housing_split = initial_split(housing, prop = 0.8)
+housing_train = training(housing_split)
+housing_test = testing(housing_split)
+
+# OLS
+lm_housing = lm(medianHouseValue ~ . - latitude - longitude, data=housing_train)
+lm_housing_modified = lm(medianHouseValue ~ . - latitude - longitude + population:medianIncome + (housingMedianAge)^2, data=housing_train)
+
+rmse(lm_housing, housing_test)
+rmse(lm_housing_modified, housing_test)
+summary(lm_housing_modified)
+
+
+# CART
+housing.tree = rpart(medianHouseValue ~ . - latitude - longitude, data=housing_train, control = rpart.control(cp = 0.002, minsplit=30))
+
+prune_1se = function(my_tree) {
+  out = as.data.frame(my_tree$cptable)
+  thresh = min(out$xerror + out$xstd)
+  cp_opt = max(out$CP[out$xerror <= thresh])
+  prune(my_tree, cp=cp_opt)
+}
+
+housing.tree_prune = prune_1se(housing.tree)
+
+# Random Forest
+housing.forest = randomForest(medianHouseValue ~ . - latitude - longitude, data = housing_train, importance = TRUE)
+
+housing.forest2 = randomForest(medianHouseValue ~ . - latitude - longitude + population:medianIncome + (housingMedianAge)^2, data = housing_train, importance = TRUE)
+
+#Gradient boosting
+housing_boost = gbm(medianHouseValue ~ . - latitude - longitude + population:medianIncome + (housingMedianAge)^2, data = housing_train, interaction.depth=4, n.trees=500, shrinkage=.05)
+
+
+rmse(lm_housing, housing_test)
+rmse(housing.tree, housing_test)
+rmse(housing.tree_prune, housing_test)
+rmse(housing.forest, housing_test)
+rmse(housing.forest2, housing_test)
+rmse(housing_boost, housing_test)
+plot(housing.forest2)
+
+```
+
