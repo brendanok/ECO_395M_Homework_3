@@ -1,3 +1,5 @@
+# ECO 395M: Exercises 3
+
 ## What causes what?
 
 **1. Why can’t I just get data from a few different cities and run the
@@ -79,29 +81,26 @@ rpart.plot(dengue.tree, digits=-5, type=4, extra=1)
 
 ``` r
 dengue.forest = randomForest(total_cases ~ season + city + specific_humidity + precipitation_amt + tdtr_k + precip_amt_kg_per_m2  + dew_point_temp_k + relative_humidity_percent, data=dengue_train, importance = TRUE)
-plot(dengue.forest)
 ```
-
-![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-3-1.png)
 
 ### Gradient boost
 
 ``` r
-dengue_boost = gbm(total_cases ~ season + city + specific_humidity + precipitation_amt + tdtr_k + precip_amt_kg_per_m2  + dew_point_temp_k + relative_humidity_percent, data=dengue_train, interaction.depth=4, n.trees=500, shrinkage=.05)
+dengue_boost = gbm(total_cases ~ season + city + specific_humidity + precipitation_amt + tdtr_k + precip_amt_kg_per_m2  + dew_point_temp_k + relative_humidity_percent, distribution="gaussian", data=dengue_train, interaction.depth=4, n.trees=500, shrinkage=.05)
 ```
 
-    ## Distribution not specified, assuming gaussian ...
+### Results
 
 | Model            |     RMSE |
 |:-----------------|---------:|
-| Tree             | 33.49981 |
-| Pruned Tree      | 34.38200 |
-| Random Forest    | 31.98165 |
-| Gradient Boosted | 33.19501 |
+| Tree             | 26.20831 |
+| Pruned Tree      | 27.60546 |
+| Random Forest    | 24.60582 |
+| Gradient Boosted | 24.42566 |
 
 The best performing model was the random forest model. Below are partial
 dependence plots for `specific_humidity`,
-`precipitation_amt`,`dew_point_temp_k`
+`precipitation_amt`,`dew_point_temp_k`.
 
 ![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-6-1.png)![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-6-2.png)![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-6-3.png)
 
@@ -109,32 +108,32 @@ dependence plots for `specific_humidity`,
 
     ## Distribution not specified, assuming gaussian ...
 
-    ## [1] 996.5327
+    ## [1] 1161.282
 
-    ## [1] 992.3039
+    ## [1] 1144.251
 
-    ## [1] 982.7513
+    ## [1] 1060.626
 
-    ## [1] 1027.844
+    ## [1] 1116.244
 
-    ## [1] 758.9844
+    ## [1] 815.2901
 
-    ## [1] 911.7435
+    ## [1] 997.5279
 
 ## Predictive model building: California housing
 
     ## Distribution not specified, assuming gaussian ...
 
-    ## [1] 77150.19
+    ## [1] 77000.8
 
-    ## [1] 75585.42
+    ## [1] 77188.81
 
-    ## [1] 78697.33
+    ## [1] 78609.87
 
-    ## [1] 79138.22
+    ## [1] 79393.94
 
-    ## [1] 66476.17
+    ## [1] 65710.6
 
-    ## [1] 67747.83
+    ## [1] 66744.92
 
 ![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-8-1.png)![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-8-2.png)![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-8-3.png)
