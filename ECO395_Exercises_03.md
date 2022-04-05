@@ -83,7 +83,8 @@ plot(dengue.forest)
 ```
 
 ![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-3-1.png)
-\#\#\# Gradient boost
+
+### Gradient boost
 
 ``` r
 dengue_boost = gbm(total_cases ~ season + city + specific_humidity + precipitation_amt + tdtr_k + precip_amt_kg_per_m2  + dew_point_temp_k + relative_humidity_percent, data=dengue_train, interaction.depth=4, n.trees=500, shrinkage=.05)
@@ -91,11 +92,12 @@ dengue_boost = gbm(total_cases ~ season + city + specific_humidity + precipitati
 
     ## Distribution not specified, assuming gaussian ...
 
-    ##              Model     RMSE
-    ## 1             Tree 26.73227
-    ## 2      Pruned Tree 30.00697
-    ## 3    Random Forest 26.51143
-    ## 4 Gradient Boosted 28.30884
+| Model            |     RMSE |
+|:-----------------|---------:|
+| Tree             | 29.92231 |
+| Pruned Tree      | 29.11968 |
+| Random Forest    | 27.58377 |
+| Gradient Boosted | 30.02897 |
 
 ![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-5-1.png)![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-5-2.png)![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-5-3.png)
 
@@ -103,32 +105,32 @@ dengue_boost = gbm(total_cases ~ season + city + specific_humidity + precipitati
 
     ## Distribution not specified, assuming gaussian ...
 
-    ## [1] 1016.602
+    ## [1] 1057.28
 
-    ## [1] 1015.298
+    ## [1] 1048.911
 
-    ## [1] 1003.596
+    ## [1] 999.7898
 
-    ## [1] 1065.347
+    ## [1] 1051.636
 
-    ## [1] 701.1192
+    ## [1] 776.0968
 
-    ## [1] 892.8241
+    ## [1] 927.5355
 
 ## Predictive model building: California housing
 
     ## Distribution not specified, assuming gaussian ...
 
-    ## [1] 75526.62
+    ## [1] 74165.07
 
-    ## [1] 74339.97
+    ## [1] 73326.18
 
-    ## [1] 76867.6
+    ## [1] 77620.78
 
-    ## [1] 77760.29
+    ## [1] 77922.82
 
-    ## [1] 64330.22
+    ## [1] 65586.16
 
-    ## [1] 65758.32
+    ## [1] 66365.47
 
 ![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-7-1.png)![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-7-2.png)![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-7-3.png)

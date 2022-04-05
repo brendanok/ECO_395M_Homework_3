@@ -79,7 +79,9 @@ rpart.plot(dengue.tree, digits=-5, type=4, extra=1)
 dengue.forest = randomForest(total_cases ~ season + city + specific_humidity + precipitation_amt + tdtr_k + precip_amt_kg_per_m2  + dew_point_temp_k + relative_humidity_percent, data=dengue_train, importance = TRUE)
 plot(dengue.forest)
 ```
+
 ### Gradient boost
+
 ```{r}
 dengue_boost = gbm(total_cases ~ season + city + specific_humidity + precipitation_amt + tdtr_k + precip_amt_kg_per_m2  + dew_point_temp_k + relative_humidity_percent, data=dengue_train, interaction.depth=4, n.trees=500, shrinkage=.05)
 
@@ -97,7 +99,7 @@ rmse_results = data.frame(
   RMSE = results
 )
 
-rmse_results
+kable(rmse_results)
 
 partialPlot(dengue.forest, dengue_test,  'specific_humidity', las=1)
 partialPlot(dengue.forest, dengue_test, 'precipitation_amt', las=1)
