@@ -153,29 +153,35 @@ prune_1se = function(my_tree) {
 
 green.tree_prune = prune_1se(green.tree)
 
+```
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.width=4}
 rpart.plot(green.tree, digits=-5, type=4, extra=1)
 rpart.plot(green.tree_prune, digits=-5, type=4, extra=1)
 ```
 
 ### Random forest
 ```{r}
-
 green.forest = randomForest(revenue ~ . - CS_PropertyID - Rent - leasing_rate - LEED - Energystar, data = green_train, importance = TRUE, na.action = na.omit)
 ```
 
 ### Gradient boost
 ```{r}
-green_boost = gbm(revenue ~ . - CS_PropertyID - Rent - leasing_rate - LEED - Energystar, data = green_train, interaction.depth=4, n.trees=500, shrinkage=.05)
+green_boost = gbm(revenue ~ . - CS_PropertyID - Rent - leasing_rate - LEED - Energystar, distribution="gaussian", data = green_train, interaction.depth=4, n.trees=500, shrinkage=.05)
 ```
 
 ### Results 
-```{r}
-rmse(lm_green, green_test)
-rmse(lm_green_modified, green_test)
-rmse(green.tree, green_test)
-rmse(green.tree_prune, green_test)
-rmse(green.forest, green_test)
-rmse(green_boost, green_test)
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+rmse_results2 = data.frame(
+  Model = c("Linear Model","Modified Linear Model","Tree","Pruned Tree","Random Forest","Gradient Boosted"),
+  RMSE = c(rmse(lm_green, green_test),
+           rmse(lm_green_modified, green_test),
+           rmse(green.tree, green_test),
+           rmse(green.tree_prune, green_test),
+           rmse(green.forest, green_test),
+           rmse(green_boost, green_test))
+)
+kable(rmse_results2)
 
 ```
 

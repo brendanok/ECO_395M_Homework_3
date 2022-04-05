@@ -99,10 +99,10 @@ dengue_boost = gbm(total_cases ~ season + city + specific_humidity + precipitati
 
 | Model            |     RMSE |
 |:-----------------|---------:|
-| Tree             | 31.98697 |
-| Pruned Tree      | 31.10346 |
-| Random Forest    | 31.23174 |
-| Gradient Boosted | 31.02113 |
+| Tree             | 29.68468 |
+| Pruned Tree      | 28.59820 |
+| Random Forest    | 27.55274 |
+| Gradient Boosted | 28.70655 |
 
 The best performing model was the random forest model. Below are partial
 dependence plots for `specific_humidity`,
@@ -152,17 +152,9 @@ prune_1se = function(my_tree) {
 }
 
 green.tree_prune = prune_1se(green.tree)
-
-rpart.plot(green.tree, digits=-5, type=4, extra=1)
 ```
 
-![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-10-1.png)
-
-``` r
-rpart.plot(green.tree_prune, digits=-5, type=4, extra=1)
-```
-
-![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-10-2.png)
+![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-11-1.png)![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-11-2.png)
 
 ### Random forest
 
@@ -173,71 +165,34 @@ green.forest = randomForest(revenue ~ . - CS_PropertyID - Rent - leasing_rate - 
 ### Gradient boost
 
 ``` r
-green_boost = gbm(revenue ~ . - CS_PropertyID - Rent - leasing_rate - LEED - Energystar, data = green_train, interaction.depth=4, n.trees=500, shrinkage=.05)
+green_boost = gbm(revenue ~ . - CS_PropertyID - Rent - leasing_rate - LEED - Energystar, distribution="gaussian", data = green_train, interaction.depth=4, n.trees=500, shrinkage=.05)
 ```
-
-    ## Distribution not specified, assuming gaussian ...
 
 ### Results
 
-``` r
-rmse(lm_green, green_test)
-```
-
-    ## Warning in predict.lm(model, data): prediction from a rank-deficient fit may be
-    ## misleading
-
-    ## [1] 1063.599
-
-``` r
-rmse(lm_green_modified, green_test)
-```
-
-    ## Warning in predict.lm(model, data): prediction from a rank-deficient fit may be
-    ## misleading
-
-    ## [1] 1056.236
-
-``` r
-rmse(green.tree, green_test)
-```
-
-    ## [1] 1018.906
-
-``` r
-rmse(green.tree_prune, green_test)
-```
-
-    ## [1] 1053.649
-
-``` r
-rmse(green.forest, green_test)
-```
-
-    ## [1] 763.377
-
-``` r
-rmse(green_boost, green_test)
-```
-
-    ## Using 500 trees...
-
-    ## [1] 942.3296
+| Model                 |      RMSE |
+|:----------------------|----------:|
+| Linear Model          | 1075.1764 |
+| Modified Linear Model | 1063.7568 |
+| Tree                  | 1080.2975 |
+| Pruned Tree           | 1081.8893 |
+| Random Forest         |  789.0855 |
+| Gradient Boosted      |  955.5421 |
 
 ## Predictive model building: California housing
 
     ## Distribution not specified, assuming gaussian ...
 
-    ## [1] 76478.7
+    ## [1] 76610.08
 
-    ## [1] 75343.49
+    ## [1] 76008.57
 
-    ## [1] 78006.59
+    ## [1] 78063.36
 
-    ## [1] 78567.62
+    ## [1] 78153.32
 
-    ## [1] 65745.21
+    ## [1] 65628.33
 
-    ## [1] 66412.2
+    ## [1] 66650.12
 
-![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-14-1.png)![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-14-2.png)![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-14-3.png)
+![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-15-1.png)![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-15-2.png)![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-15-3.png)
