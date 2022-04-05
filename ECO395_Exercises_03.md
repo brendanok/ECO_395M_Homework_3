@@ -77,6 +77,12 @@ rpart.plot(dengue.tree, digits=-5, type=4, extra=1)
 
 ![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-2-1.png)
 
+``` r
+rpart.plot(dengue.tree_prune, digits=-5, type=4, extra=1)
+```
+
+![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-2-2.png)
+
 ### Random forest
 
 ``` r
@@ -93,10 +99,10 @@ dengue_boost = gbm(total_cases ~ season + city + specific_humidity + precipitati
 
 | Model            |     RMSE |
 |:-----------------|---------:|
-| Tree             | 31.09546 |
-| Pruned Tree      | 30.80648 |
-| Random Forest    | 29.92155 |
-| Gradient Boosted | 31.14720 |
+| Tree             | 31.98697 |
+| Pruned Tree      | 31.10346 |
+| Random Forest    | 31.23174 |
+| Gradient Boosted | 31.02113 |
 
 The best performing model was the random forest model. Below are partial
 dependence plots for `specific_humidity`,
@@ -106,34 +112,132 @@ dependence plots for `specific_humidity`,
 
 ## Predictive model building: green certification
 
+I started off by creating the `revenue` variable by multiplying `Rent`
+with `leasing_rate`. Then I split my data into the train-test sets.
+
+### Linear Models
+
+``` r
+lm_green = lm(revenue ~ . - CS_PropertyID - Rent - leasing_rate - LEED - Energystar, data=green_train)
+```
+
+I originally regressed revenue on the entire dataset taking out the
+`Rent`, `leasing rate`, and `CS_PropretyID`. I opted to use the combined
+`green_rating` variable, so I took out the `LEED` and `Energystar` as
+well.
+
+``` r
+lm_green_modified = lm(revenue ~ . - CS_PropertyID - Rent - leasing_rate - LEED - Energystar - Gas_Costs:cd_total_07 + Electricity_Costs:hd_total07 + Gas_Costs:class_a + Gas_Costs:class_b + Gas_Costs:City_Market_Rent + Gas_Costs:stories + Gas_Costs:amenities + Electricity_Costs:class_a + Electricity_Costs:class_b + Electricity_Costs:age + Electricity_Costs:age  + Electricity_Costs:City_Market_Rent + Electricity_Costs:stories + Electricity_Costs:amenities, data=green_train)
+```
+
+However, I wanted to improve the model by feature engineering by way of
+interactions. I figured that electricity and gas costs would vary widely
+between building types, which would affect rent and space combinations
+that people would want to lease at.The idea is that some buildings would
+vary in efficiency for energy usage based on building class types,
+amount of amenities offered, age, etc. I incorporated these interactions
+into the linear model and tested to see if it would linear model would
+improved.
+
+### CART
+
+``` r
+green.tree = rpart(revenue ~ . - Rent - leasing_rate - LEED - Energystar, data=green_train, control = rpart.control(cp = 0.002, minsplit=30))
+
+prune_1se = function(my_tree) {
+  out = as.data.frame(my_tree$cptable)
+  thresh = min(out$xerror + out$xstd)
+  cp_opt = max(out$CP[out$xerror <= thresh])
+  prune(my_tree, cp=cp_opt)
+}
+
+green.tree_prune = prune_1se(green.tree)
+
+rpart.plot(green.tree, digits=-5, type=4, extra=1)
+```
+
+![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-10-1.png)
+
+``` r
+rpart.plot(green.tree_prune, digits=-5, type=4, extra=1)
+```
+
+![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-10-2.png)
+
+### Random forest
+
+``` r
+green.forest = randomForest(revenue ~ . - CS_PropertyID - Rent - leasing_rate - LEED - Energystar, data = green_train, importance = TRUE, na.action = na.omit)
+```
+
+### Gradient boost
+
+``` r
+green_boost = gbm(revenue ~ . - CS_PropertyID - Rent - leasing_rate - LEED - Energystar, data = green_train, interaction.depth=4, n.trees=500, shrinkage=.05)
+```
+
     ## Distribution not specified, assuming gaussian ...
 
-    ## [1] 910.0705
+### Results
 
-    ## [1] 903.8378
+``` r
+rmse(lm_green, green_test)
+```
 
-    ## [1] 880.6102
+    ## Warning in predict.lm(model, data): prediction from a rank-deficient fit may be
+    ## misleading
 
-    ## [1] 958.5069
+    ## [1] 1063.599
 
-    ## [1] 646.6308
+``` r
+rmse(lm_green_modified, green_test)
+```
 
-    ## [1] 833.3854
+    ## Warning in predict.lm(model, data): prediction from a rank-deficient fit may be
+    ## misleading
+
+    ## [1] 1056.236
+
+``` r
+rmse(green.tree, green_test)
+```
+
+    ## [1] 1018.906
+
+``` r
+rmse(green.tree_prune, green_test)
+```
+
+    ## [1] 1053.649
+
+``` r
+rmse(green.forest, green_test)
+```
+
+    ## [1] 763.377
+
+``` r
+rmse(green_boost, green_test)
+```
+
+    ## Using 500 trees...
+
+    ## [1] 942.3296
 
 ## Predictive model building: California housing
 
     ## Distribution not specified, assuming gaussian ...
 
-    ## [1] 75864.9
+    ## [1] 76478.7
 
-    ## [1] 93175.22
+    ## [1] 75343.49
 
-    ## [1] 77226.47
+    ## [1] 78006.59
 
-    ## [1] 77726.98
+    ## [1] 78567.62
 
-    ## [1] 64843.63
+    ## [1] 65745.21
 
-    ## [1] 65957.95
+    ## [1] 66412.2
 
-![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-8-1.png)![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-8-2.png)![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-8-3.png)
+![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-14-1.png)![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-14-2.png)![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-14-3.png)

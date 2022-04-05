@@ -9,7 +9,7 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, dpi=300,fig.width=7)
+knitr::opts_chunk$set(echo = TRUE, dpi=300,fig.width=6)
 library(tidyverse)
 library(ggplot2)
 library(dplyr)
@@ -60,7 +60,7 @@ dengue_test = testing(dengue_split)
 
 ### CART
 
-```{r, dpi=300}
+```{r}
 dengue.tree = rpart(total_cases ~ season + city + specific_humidity + precipitation_amt + tdtr_k + precip_amt_kg_per_m2  + dew_point_temp_k + relative_humidity_percent, data=dengue_train, control = rpart.control(cp = 0.002, minsplit=30))
 
 prune_1se = function(my_tree) {
@@ -72,6 +72,7 @@ prune_1se = function(my_tree) {
 
 dengue.tree_prune = prune_1se(dengue.tree)
 rpart.plot(dengue.tree, digits=-5, type=4, extra=1)
+rpart.plot(dengue.tree_prune, digits=-5, type=4, extra=1)
 ```
 
 ### Random forest
@@ -104,7 +105,7 @@ kable(rmse_results)
 ```
 The best performing model was the random forest model. Below are partial dependence plots for `specific_humidity`, `precipitation_amt`,`dew_point_temp_k`.
 
-```{r, echo=FALSE, warning=FALSE, message=FALSE, dpi=300}
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
 partialPlot(dengue.forest, dengue_test,  'specific_humidity', las=1)
 partialPlot(dengue.forest, dengue_test, 'precipitation_amt', las=1)
 partialPlot(dengue.forest, dengue_test, 'dew_point_temp_k', las=1)
@@ -122,18 +123,25 @@ green_split = initial_split(greenbuildings, prop = 0.8)
 green_train = training(green_split)
 green_test = testing(green_split)
 
-### OLS 
+```
+I started off by creating the `revenue` variable by multiplying `Rent` with `leasing_rate`. Then I split my data into the train-test sets.
 
+### Linear Models
+```{r}
+lm_green = lm(revenue ~ . - CS_PropertyID - Rent - leasing_rate - LEED - Energystar, data=green_train)
 
-lm_green = lm(revenue ~ . - CS_PropertyID - Rent - leasing_rate - green_rating, data=green_train)
+```
 
-# lm_green_modified = lm(revenue ~ . - Rent - leasing_rate - LEED - Energystar + Gas_Costs:cd_total_07 + Electricity_Costs:hd_total07 + Gas_Costs:class_a + Gas_Costs:class_b + Electricity_Costs:class_a + Electricity_Costs:class_b + Electricity_Costs:age + Electricity_Costs:age, data=green_train)
+I originally regressed revenue on the entire dataset taking out the `Rent`, `leasing rate`, and `CS_PropretyID`. I opted to use the combined `green_rating` variable, so I took out the `LEED` and `Energystar` as well. 
 
+```{r}
 lm_green_modified = lm(revenue ~ . - CS_PropertyID - Rent - leasing_rate - LEED - Energystar - Gas_Costs:cd_total_07 + Electricity_Costs:hd_total07 + Gas_Costs:class_a + Gas_Costs:class_b + Gas_Costs:City_Market_Rent + Gas_Costs:stories + Gas_Costs:amenities + Electricity_Costs:class_a + Electricity_Costs:class_b + Electricity_Costs:age + Electricity_Costs:age  + Electricity_Costs:City_Market_Rent + Electricity_Costs:stories + Electricity_Costs:amenities, data=green_train)
+```
 
-#summary (lm_green_modified)
+However, I wanted to improve the model by feature engineering by way of interactions. I figured that electricity and gas costs would vary widely between building types, which would affect rent and space combinations that people would want to lease at.The idea is that some buildings would vary in efficiency for energy usage based on building class types, amount of amenities offered, age, etc. I incorporated these interactions into the linear model and tested to see if it would linear model would improved.
 
 ### CART
+```{r}
 green.tree = rpart(revenue ~ . - Rent - leasing_rate - LEED - Energystar, data=green_train, control = rpart.control(cp = 0.002, minsplit=30))
 
 prune_1se = function(my_tree) {
@@ -145,20 +153,29 @@ prune_1se = function(my_tree) {
 
 green.tree_prune = prune_1se(green.tree)
 
-### Random forest
-green.forest = randomForest(revenue ~ . - CS_PropertyID - Rent - leasing_rate - LEED - Energystar, data = green_train, importance = TRUE, na.action = na.omit)
+rpart.plot(green.tree, digits=-5, type=4, extra=1)
+rpart.plot(green.tree_prune, digits=-5, type=4, extra=1)
+```
 
+### Random forest
+```{r}
+
+green.forest = randomForest(revenue ~ . - CS_PropertyID - Rent - leasing_rate - LEED - Energystar, data = green_train, importance = TRUE, na.action = na.omit)
+```
 
 ### Gradient boost
+```{r}
 green_boost = gbm(revenue ~ . - CS_PropertyID - Rent - leasing_rate - LEED - Energystar, data = green_train, interaction.depth=4, n.trees=500, shrinkage=.05)
+```
 
+### Results 
+```{r}
 rmse(lm_green, green_test)
 rmse(lm_green_modified, green_test)
 rmse(green.tree, green_test)
 rmse(green.tree_prune, green_test)
 rmse(green.forest, green_test)
 rmse(green_boost, green_test)
-
 
 ```
 
