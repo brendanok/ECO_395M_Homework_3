@@ -1,53 +1,109 @@
 ## What causes what?
 
-## Tree modeling: dengue cases
+**1. Why can’t I just get data from a few different cities and run the
+regression of “Crime” on “Police” to understand how more cops in the
+streets affect crime? (“Crime” refers to some measure of crime rate and
+“Police” measures the number of cops in a city.)**
 
-### CART
+Higher crime cities are already incentivized to hire more police. And
+when crime is increased, the response is to hire more police. To
+actually find causality of extra police on crime rate, you need to find
+examples of where extra police get hired for reasons uncorrelated with
+crime. Examples of this include using the terrorism alert system as
+mentioned in the podcast.
 
-### Random forest
+**2. How were the researchers from UPenn able to isolate this effect?
+Briefly describe their approach and discuss their result in the “Table
+2” below, from the researchers’ paper.**
 
-    ## Distribution not specified, assuming gaussian ...
+The researchers were able to isolate this effect by implementing a dummy
+variable for ‘high alert’ that signifies the terror alert in Washington
+D.C. is turned to orange. When that happens, extra police is put on the
+street for terrorism related reasons. This is important because in this
+case, the extra level of police is uncorrelated with crime, so you can
+make a better test of the causal effect of police on crime.
 
-    ## [1] 24.60072
+**3. Why did they have to control for Metro ridership? What was that
+trying to capture?**
 
-    ## [1] 25.42507
+They controlled for Metro ridership because an orange terror alert level
+might actually reduce the amount of potential crime victims in
+Washington D.C. during high alert times. So they accounted for that in
+the second model to see if would change their results.
 
-    ## [1] 23.00512
+<b>4. Below I am showing you “Table 4” from the researchers’ paper. Just
+focus on the first column of the table. Can you describe the model being
+estimated here? What is the conclusion?</b>
 
-    ## [1] 25.00457
+The model measures the reduction in crime in Washington D.C. during high
+alert days. The model also uses a dummy for crime incidents in District
+1 where there are a lot of important political and historic buildings,
+as well as a dummy for the rest of the city. It also controls for Metro
+ridership. The model concludes that on high alert days, the reduction in
+crime in the first district of Washington D.C. is much higher than it is
+for the rest of the districts.
 
-![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-6-1.png)![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-6-2.png)![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-6-3.png)
 
-## Predictive model building: green certification
 
-    ## Distribution not specified, assuming gaussian ...
+    ## Tree modeling: dengue cases
 
-    ## [1] 1072.544
 
-    ## [1] 1076.944
 
-    ## [1] 1115.806
 
-    ## [1] 1166.302
+    ### CART
 
-    ## [1] 852.8638
 
-    ## [1] 1042.664
 
-## Predictive model building: California housing
+    ### Random forest
 
-    ## Distribution not specified, assuming gaussian ...
 
-    ## [1] 77459
+## Distribution not specified, assuming gaussian …
 
-    ## [1] 76212.91
+## \[1\] 28.09821
 
-    ## [1] 80425.21
+## \[1\] 27.27379
 
-    ## [1] 81006.67
+## \[1\] 26.05006
 
-    ## [1] 67060.25
+## \[1\] 25.99513
 
-    ## [1] 68029.17
+
+    ![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-6-1.png)![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-6-2.png)![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-6-3.png)
+
+    ## Predictive model building: green certification
+
+## Distribution not specified, assuming gaussian …
+
+## \[1\] 941.143
+
+## \[1\] 930.3005
+
+## \[1\] 911.927
+
+## \[1\] 937.665
+
+## \[1\] 700.529
+
+## \[1\] 843.8646
+
+
+
+    ## Predictive model building: California housing
+
+## Distribution not specified, assuming gaussian …
+
+## \[1\] 76420.97
+
+## \[1\] 75147.03
+
+## \[1\] 78333.19
+
+## \[1\] 78914.27
+
+## \[1\] 65702.64
+
+## \[1\] 66744.04
+
+\`\`\`
 
 ![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-8-1.png)![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-8-2.png)![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-8-3.png)
