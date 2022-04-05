@@ -92,10 +92,10 @@ dengue_boost = gbm(total_cases ~ season + city + specific_humidity + precipitati
 
 | Model            |     RMSE |
 |:-----------------|---------:|
-| Tree             | 23.44302 |
-| Pruned Tree      | 25.38785 |
-| Random Forest    | 23.65116 |
-| Gradient Boosted | 23.29441 |
+| Tree             | 32.98036 |
+| Pruned Tree      | 32.75238 |
+| Random Forest    | 30.47661 |
+| Gradient Boosted | 32.75517 |
 
 The best performing model was the random forest model. Below are partial
 dependence plots for `specific_humidity`,
@@ -163,29 +163,29 @@ green_boost = gbm(revenue ~ . - CS_PropertyID - Rent - leasing_rate - LEED - Ene
 
 ### Results
 
-| Model                 |     RMSE |
-|:----------------------|---------:|
-| Linear Model          | 944.0978 |
-| Modified Linear Model | 938.2198 |
-| Tree                  | 924.4865 |
-| Pruned Tree           | 978.4991 |
-| Random Forest         | 675.2676 |
-| Gradient Boosted      | 868.5310 |
+| Model                 |      RMSE |
+|:----------------------|----------:|
+| Linear Model          | 1076.0580 |
+| Modified Linear Model | 1066.8999 |
+| Tree                  |  986.4479 |
+| Pruned Tree           | 1066.4731 |
+| Random Forest         |  782.4850 |
+| Gradient Boosted      |  969.8212 |
 
 ## Predictive model building: California housing
 
     ## Distribution not specified, assuming gaussian ...
 
-    ## [1] 75515.65
+    ## [1] 78022.82
 
-    ## [1] 75652.67
+    ## [1] 76936.86
 
-    ## [1] 75870.4
+    ## [1] 79587.07
 
-    ## [1] 76828.88
+    ## [1] 81110.99
 
-    ## [1] 63643.72
+    ## [1] 68119.7
 
-    ## [1] 64525.86
+    ## [1] 68755.41
 
 ![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-16-1.png)![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-16-2.png)![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-16-3.png)
