@@ -31,9 +31,9 @@ might actually reduce the amount of potential crime victims in
 Washington D.C. during high alert times. So they accounted for that in
 the second model to see if would change their results.
 
-<b>4. Below I am showing you “Table 4” from the researchers’ paper. Just
+**4. Below I am showing you “Table 4” from the researchers’ paper. Just
 focus on the first column of the table. Can you describe the model being
-estimated here? What is the conclusion?</b>
+estimated here? What is the conclusion?**
 
 The model measures the reduction in crime in Washington D.C. during high
 alert days. The model also uses a dummy for crime incidents in District
@@ -70,7 +70,6 @@ prune_1se = function(my_tree) {
 }
 
 dengue.tree_prune = prune_1se(dengue.tree)
-
 rpart.plot(dengue.tree, digits=-5, type=4, extra=1)
 ```
 
@@ -84,88 +83,52 @@ plot(dengue.forest)
 ```
 
 ![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-3-1.png)
+\#\#\# Gradient boost
 
 ``` r
-# Gradient boost
 dengue_boost = gbm(total_cases ~ season + city + specific_humidity + precipitation_amt + tdtr_k + precip_amt_kg_per_m2  + dew_point_temp_k + relative_humidity_percent, data=dengue_train, interaction.depth=4, n.trees=500, shrinkage=.05)
 ```
 
     ## Distribution not specified, assuming gaussian ...
 
-``` r
-rmse(dengue.tree, dengue_test)
-```
+    ##              Model     RMSE
+    ## 1             Tree 26.73227
+    ## 2      Pruned Tree 30.00697
+    ## 3    Random Forest 26.51143
+    ## 4 Gradient Boosted 28.30884
 
-    ## [1] 32.33492
-
-``` r
-rmse(dengue.tree_prune, dengue_test)
-```
-
-    ## [1] 32.28888
-
-``` r
-rmse(dengue.forest, dengue_test)
-```
-
-    ## [1] 30.24063
-
-``` r
-rmse(dengue_boost, dengue_test)
-```
-
-    ## Using 500 trees...
-
-    ## [1] 31.39644
-
-``` r
-partialPlot(dengue.forest, dengue_test,  'specific_humidity', las=1)
-```
-
-![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-5-1.png)
-
-``` r
-partialPlot(dengue.forest, dengue_test, 'precipitation_amt', las=1)
-```
-
-![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-5-2.png)
-
-``` r
-partialPlot(dengue.forest, dengue_test, 'dew_point_temp_k', las=1)
-```
-
-![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-5-3.png)
+![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-5-1.png)![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-5-2.png)![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-5-3.png)
 
 ## Predictive model building: green certification
 
     ## Distribution not specified, assuming gaussian ...
 
-    ## [1] 999.8245
+    ## [1] 1016.602
 
-    ## [1] 993.2966
+    ## [1] 1015.298
 
-    ## [1] 1013.186
+    ## [1] 1003.596
 
-    ## [1] 1021.26
+    ## [1] 1065.347
 
-    ## [1] 887.653
+    ## [1] 701.1192
 
-    ## [1] 988.9847
+    ## [1] 892.8241
 
 ## Predictive model building: California housing
 
     ## Distribution not specified, assuming gaussian ...
 
-    ## [1] 73935.58
+    ## [1] 75526.62
 
-    ## [1] 72638.76
+    ## [1] 74339.97
 
-    ## [1] 76999.72
+    ## [1] 76867.6
 
-    ## [1] 77565.27
+    ## [1] 77760.29
 
-    ## [1] 63763.67
+    ## [1] 64330.22
 
-    ## [1] 64831.83
+    ## [1] 65758.32
 
 ![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-7-1.png)![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-7-2.png)![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-7-3.png)
