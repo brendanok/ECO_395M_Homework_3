@@ -9,7 +9,7 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, dpi=300)
+knitr::opts_chunk$set(echo = TRUE, dpi=300, fig.width = 6)
 library(tidyverse)
 library(ggplot2)
 library(dplyr)
@@ -144,6 +144,7 @@ lm_green_modified = lm(revenue ~ . - CS_PropertyID - Rent - leasing_rate - LEED 
 
 However, I wanted to improve the model by feature engineering by way of interactions. I figured that electricity and gas costs would vary widely between building types, which would affect rent and space combinations that people would want to lease at.The idea is that some buildings would vary in efficiency for energy usage based on building class types, amount of amenities offered, age, etc. I incorporated these interactions into the linear model and tested to see if it would linear model would improved.
 
+
 ### CART
 ```{r}
 green.tree = rpart(revenue ~ . - Rent - leasing_rate - LEED - Energystar, data=green_train, control = rpart.control(cp = 0.002, minsplit=30))
@@ -173,6 +174,8 @@ green.forest = randomForest(revenue ~ . - CS_PropertyID - Rent - leasing_rate - 
 ```{r}
 green_boost = gbm(revenue ~ . - CS_PropertyID - Rent - leasing_rate - LEED - Energystar, distribution="gaussian", data = green_train, interaction.depth=4, n.trees=500, shrinkage=.05)
 ```
+I included two tree models with the second one being pruned back. I also ran a random forest and gradient boosted model. I initially tried to throw in the interaction terms included in the linear model into the random forest model, but found that they performed better with the simpler model.
+
 
 ### Results 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
@@ -189,7 +192,7 @@ kable(rmse_results2)
 
 ```
 
-The linear model improved over the original one with all 
+When estimating the out-of-sample accuracy, my modified linear model improved over the original one, and fairly similarly with the other models. But all the models were blown out of the water by the random forest model.
 
 ## Predictive model building: California housing
 
@@ -200,14 +203,22 @@ housing = read.csv('CAhousing.csv')
 housing_split = initial_split(housing, prop = 0.8)
 housing_train = training(housing_split)
 housing_test = testing(housing_split)
+```
 
-# OLS
 
+### Linear models
+```{r}
 lm_housing = lm(medianHouseValue ~ . - latitude - longitude, data=housing_train)
 
 lm_housing_modified  = lm(medianHouseValue ~ . - latitude - longitude + population:medianIncome + poly(population,2) + totalRooms:households, data=housing_train)
 
-# CART
+```
+I started off by regressing medianHouseValue on every variable but taking out `latitude` and `longitude`.
+To improve upon the model, I interacted population with `medianIncome`, `totalRooms` with `households` and a squared `population` term. 
+
+
+### CART
+```{r}
 housing.tree = rpart(medianHouseValue ~ . - latitude - longitude, data=housing_train, control = rpart.control(cp = 0.002, minsplit=30))
 
 prune_1se = function(my_tree) {
@@ -219,22 +230,41 @@ prune_1se = function(my_tree) {
 
 housing.tree_prune = prune_1se(housing.tree)
 
-# Random Forest
+```
+
+### Random forest
+```{r}
 housing.forest = randomForest(medianHouseValue ~ . - latitude - longitude, data = housing_train, importance = TRUE)
+```
+
+### Gradient boost
+```{r}
+housing_boost = gbm(medianHouseValue ~ . - latitude - longitude, distribution="gaussian", data = housing_train, interaction.depth=4, n.trees=500, shrinkage=.05)
+
+```
+Like in the previous problem, I made two tree models including a pruned tree model. I also ran a random forest and gradient boosted model.
+
+### Results
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+
+rmse_results3 = data.frame(
+  Model = c("Linear Model","Modified Linear Model", "Tree","Pruned Tree","Random Forest","Gradient Boosted"),
+  RMSE = c(rmse(lm_housing, housing_test),
+           rmse(lm_housing_modified, housing_test),
+           rmse(housing.tree, housing_test),
+           rmse(housing.tree_prune, housing_test),
+           rmse(housing.forest, housing_test),
+           rmse(housing_boost, housing_test))
+)
+kable(rmse_results3)
+
+```
+Again, the modified linear model outperformed original linear models and even the tree models.However, the random forest model performed the best in the estimates of out-of-sample accuracy.
 
 
-#Gradient boosting
-housing_boost = gbm(medianHouseValue ~ . - latitude - longitude, data = housing_train, interaction.depth=4, n.trees=500, shrinkage=.05)
-
-
-rmse(lm_housing, housing_test)
-rmse(lm_housing_modified, housing_test)
-rmse(housing.tree, housing_test)
-rmse(housing.tree_prune, housing_test)
-rmse(housing.forest, housing_test)
-rmse(housing_boost, housing_test)
-
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
 California <- get_stamenmap(bbox = c(left = -124.409591, bottom = 32.534156, right = -114.131211, top = 42.009518), maptype = "toner-lite", zoom=8)
+
 
 ggmap(California) + 
   geom_point(data=housing, mapping=aes(x=longitude, y=latitude, color = medianHouseValue), size = 0.3) + scale_fill_continuous(label=comma)

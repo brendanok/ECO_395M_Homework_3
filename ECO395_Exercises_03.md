@@ -92,10 +92,10 @@ dengue_boost = gbm(total_cases ~ season + city + specific_humidity + precipitati
 
 | Model            |     RMSE |
 |:-----------------|---------:|
-| Tree             | 22.42715 |
-| Pruned Tree      | 20.82818 |
-| Random Forest    | 21.42370 |
-| Gradient Boosted | 22.27760 |
+| Tree             | 24.92751 |
+| Pruned Tree      | 24.82462 |
+| Random Forest    | 24.38226 |
+| Gradient Boosted | 24.98472 |
 
 The best performing model was the random forest model. Below are partial
 dependence plots for `specific_humidity`,
@@ -161,33 +161,86 @@ green.forest = randomForest(revenue ~ . - CS_PropertyID - Rent - leasing_rate - 
 green_boost = gbm(revenue ~ . - CS_PropertyID - Rent - leasing_rate - LEED - Energystar, distribution="gaussian", data = green_train, interaction.depth=4, n.trees=500, shrinkage=.05)
 ```
 
+I included two tree models with the second one being pruned back. I also
+ran a random forest and gradient boosted model. I initially tried to
+throw in the interaction terms included in the linear model into the
+random forest model, but found that they performed better with the
+simpler model.
+
 ### Results
 
 | Model                 |      RMSE |
 |:----------------------|----------:|
-| Linear Model          |  990.5203 |
-| Modified Linear Model |  981.2781 |
-| Tree                  |  968.2260 |
-| Pruned Tree           | 1035.4270 |
-| Random Forest         |  733.1759 |
-| Gradient Boosted      |  947.9235 |
+| Linear Model          | 1035.8559 |
+| Modified Linear Model | 1020.8357 |
+| Tree                  |  981.5698 |
+| Pruned Tree           | 1009.7719 |
+| Random Forest         |  759.0505 |
+| Gradient Boosted      |  919.1550 |
 
-The linear model improved over the original one with all
+When estimating the out-of-sample accuracy, my modified linear model
+improved over the original one, and fairly similarly with the other
+models. But all the models were blown out of the water by the random
+forest model.
 
 ## Predictive model building: California housing
 
-    ## Distribution not specified, assuming gaussian ...
+### Linear models
 
-    ## [1] 77072.33
+``` r
+lm_housing = lm(medianHouseValue ~ . - latitude - longitude, data=housing_train)
 
-    ## [1] 76625.71
+lm_housing_modified  = lm(medianHouseValue ~ . - latitude - longitude + population:medianIncome + poly(population,2) + totalRooms:households, data=housing_train)
+```
 
-    ## [1] 78010.35
+I started off by regressing medianHouseValue on every variable but
+taking out `latitude` and `longitude`. To improve upon the model, I
+interacted population with `medianIncome`, `totalRooms` with
+`households` and a squared `population` term.
 
-    ## [1] 78694.53
+### CART
 
-    ## [1] 65877.97
+``` r
+housing.tree = rpart(medianHouseValue ~ . - latitude - longitude, data=housing_train, control = rpart.control(cp = 0.002, minsplit=30))
 
-    ## [1] 67071.33
+prune_1se = function(my_tree) {
+  out = as.data.frame(my_tree$cptable)
+  thresh = min(out$xerror + out$xstd)
+  cp_opt = max(out$CP[out$xerror <= thresh])
+  prune(my_tree, cp=cp_opt)
+}
 
-![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-16-1.png)![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-16-2.png)![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-16-3.png)
+housing.tree_prune = prune_1se(housing.tree)
+```
+
+### Random forest
+
+``` r
+housing.forest = randomForest(medianHouseValue ~ . - latitude - longitude, data = housing_train, importance = TRUE)
+```
+
+### Gradient boost
+
+``` r
+housing_boost = gbm(medianHouseValue ~ . - latitude - longitude, distribution="gaussian", data = housing_train, interaction.depth=4, n.trees=500, shrinkage=.05)
+```
+
+Like in the previous problem, I made two tree models including a pruned
+tree model. I also ran a random forest and gradient boosted model.
+
+### Results
+
+| Model                 |     RMSE |
+|:----------------------|---------:|
+| Linear Model          | 77033.58 |
+| Modified Linear Model | 75572.01 |
+| Tree                  | 80433.96 |
+| Pruned Tree           | 80941.97 |
+| Random Forest         | 66585.93 |
+| Gradient Boosted      | 67564.51 |
+
+Again, the modified linear model outperformed original linear models and
+even the tree models.However, the random forest model performed the best
+in the estimates of out-of-sample accuracy.
+
+![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-22-1.png)![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-22-2.png)![](ECO395_Exercises_03_files/figure-markdown_github/unnamed-chunk-22-3.png)
