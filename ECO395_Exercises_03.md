@@ -92,10 +92,10 @@ dengue_boost = gbm(total_cases ~ season + city + specific_humidity + precipitati
 
 | Model            |     RMSE |
 |:-----------------|---------:|
-| Tree             | 24.92751 |
-| Pruned Tree      | 24.82462 |
-| Random Forest    | 24.38226 |
-| Gradient Boosted | 24.98472 |
+| Tree             | 25.83480 |
+| Pruned Tree      | 26.01827 |
+| Random Forest    | 23.45411 |
+| Gradient Boosted | 23.51912 |
 
 The best performing model was the random forest model. Below are partial
 dependence plots for `specific_humidity`,
@@ -169,14 +169,14 @@ simpler model.
 
 ### Results
 
-| Model                 |      RMSE |
-|:----------------------|----------:|
-| Linear Model          | 1035.8559 |
-| Modified Linear Model | 1020.8357 |
-| Tree                  |  981.5698 |
-| Pruned Tree           | 1009.7719 |
-| Random Forest         |  759.0505 |
-| Gradient Boosted      |  919.1550 |
+| Model                 |     RMSE |
+|:----------------------|---------:|
+| Linear Model          | 956.1415 |
+| Modified Linear Model | 944.6540 |
+| Tree                  | 911.9831 |
+| Pruned Tree           | 982.1575 |
+| Random Forest         | 706.2270 |
+| Gradient Boosted      | 865.6309 |
 
 When estimating the out-of-sample accuracy, my modified linear model
 improved over the original one, and fairly similarly with the other
@@ -232,12 +232,12 @@ tree model. I also ran a random forest and gradient boosted model.
 
 | Model                 |     RMSE |
 |:----------------------|---------:|
-| Linear Model          | 77033.58 |
-| Modified Linear Model | 75572.01 |
-| Tree                  | 80433.96 |
-| Pruned Tree           | 80941.97 |
-| Random Forest         | 66585.93 |
-| Gradient Boosted      | 67564.51 |
+| Linear Model          | 76507.35 |
+| Modified Linear Model | 75087.72 |
+| Tree                  | 78765.71 |
+| Pruned Tree           | 79846.85 |
+| Random Forest         | 66315.73 |
+| Gradient Boosted      | 66843.94 |
 
 Again, the modified linear model outperformed original linear models and
 even the tree models.However, the random forest model performed the best

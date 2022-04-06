@@ -263,21 +263,26 @@ Again, the modified linear model outperformed original linear models and even th
 
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
+
 California <- get_stamenmap(bbox = c(left = -124.409591, bottom = 32.534156, right = -114.131211, top = 42.009518), maptype = "toner-lite", zoom=8)
 
 
 ggmap(California) + 
-  geom_point(data=housing, mapping=aes(x=longitude, y=latitude, color = medianHouseValue), size = 0.3) + scale_fill_continuous(label=comma)
+  geom_point(data=housing, mapping=aes(x=longitude, y=latitude, color = medianHouseValue), size = 0.3) + scale_fill_continuous(label=comma) + 
+  labs(title="Median House Value", x="Longitude" , y ="Latitude")
 
 predicted_medianHouseValue = predict(housing.forest, newdata = housing)
 housing$predicted_medianHouseValue = predicted_medianHouseValue
 housing$residuals = housing$medianHouseValue - predicted_medianHouseValue
 
 ggmap(California) + 
-  geom_point(data=housing, mapping=aes(x=longitude, y=latitude, color = predicted_medianHouseValue), size = 0.3) + scale_fill_continuous(label=comma)
+  geom_point(data=housing, mapping=aes(x=longitude, y=latitude, color = predicted_medianHouseValue), size = 0.3) + scale_fill_continuous(label=comma) + 
+  labs(title="Predicted Median House Value", x="Longitude" , y ="Latitude")
 
 ggmap(California) + 
-  geom_point(data=housing, mapping=aes(x=longitude, y=latitude, color = residuals), size = 0.3,) +  scale_fill_continuous(label=comma)
+  geom_point(data=housing, mapping=aes(x=longitude, y=latitude, color = residuals), size = 0.3,) +  scale_fill_continuous(label=comma) + 
+  labs(title="Residuals", x="Longitude" , y ="Latitude")
+
 
 ```
 
