@@ -92,10 +92,10 @@ dengue_boost = gbm(total_cases ~ season + city + specific_humidity + precipitati
 
 | Model            |     RMSE |
 |:-----------------|---------:|
-| Tree             | 27.80952 |
-| Pruned Tree      | 28.93409 |
-| Random Forest    | 27.75643 |
-| Gradient Boosted | 29.22755 |
+| Tree             | 29.89761 |
+| Pruned Tree      | 30.06886 |
+| Random Forest    | 30.21266 |
+| Gradient Boosted | 31.04727 |
 
 The best performing model was the random forest model. Below are partial
 dependence plots for `specific_humidity`,
@@ -171,12 +171,12 @@ simpler model.
 
 | Model                 |      RMSE |
 |:----------------------|----------:|
-| Linear Model          | 1057.9227 |
-| Modified Linear Model | 1044.0976 |
-| Tree                  | 1062.4577 |
-| Pruned Tree           | 1070.7954 |
-| Random Forest         |  774.7179 |
-| Gradient Boosted      |  923.0421 |
+| Linear Model          | 1179.6112 |
+| Modified Linear Model | 1167.2912 |
+| Tree                  | 1147.0758 |
+| Pruned Tree           | 1153.2061 |
+| Random Forest         |  914.0749 |
+| Gradient Boosted      | 1086.7551 |
 
 When estimating the out-of-sample accuracy, my modified linear model
 improved over the original one, and fairly similarly with the other
@@ -232,12 +232,12 @@ tree model. I also ran a random forest and gradient boosted model.
 
 | Model                 |     RMSE |
 |:----------------------|---------:|
-| Linear Model          | 77275.57 |
-| Modified Linear Model | 75443.86 |
-| Tree                  | 80566.62 |
-| Pruned Tree           | 81240.72 |
-| Random Forest         | 66441.53 |
-| Gradient Boosted      | 67306.43 |
+| Linear Model          | 76917.33 |
+| Modified Linear Model | 75875.60 |
+| Tree                  | 79573.52 |
+| Pruned Tree           | 80541.71 |
+| Random Forest         | 66748.76 |
+| Gradient Boosted      | 67991.90 |
 
 Again, the modified linear model outperformed original linear models and
 even the tree models.However, the random forest model performed the best
